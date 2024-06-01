@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    <title>papu Mapa</title>
+
+    <style>
+        #map { 
+            height: 500px; 
+            width: 500px;
+            margin: 0 auto; /* Esto centra horizontalmente el div */
+        }
+        * {
+            margin: 0 auto;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Doxeador 3000</h1>
+     <div id="map"></div>
+     <button type="button" id="enviar">Enviar coordenadas</button>
+     <h3 id="coords-bosho">La posición actual del bosho es:</h3>
+     <p id="coords"></p>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.2.8/mqtt.min.js"></script>
+     <script>
+        // COORDENADAS DE TELEMATICA
+        var map = L.map('map').setView([19.249207606172725, -103.6973724389974], 19);
+        var coords = {
+            lat: "",
+            lon: ""
+        }
+
+        // Añadir la capa de mosaico
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,  // Nivel máximo de zoom
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Event listener para imprimir las coordenadas en la consola al hacer clic
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+            console.log("Coordenadas: " + lat + ", " + lng);
+            coords.lat = lat;
+            coords.lon = lng;
+        });
+
+        let btn = document.getElementById("enviar");
+
+        btn.addEventListener("click", () => {
+            enviarCoords();
+        });
+
+        // MQTT
+        const broker = 'wss://test.mosquitto.org:8081'; // Broker MQTT usando WebSockets
+        const client = mqtt.connect(broker);
+
+        client.on('connect', function () {
+            console.log('Conectado al broker MQTT');
+            client.subscribe('/TX_ELBOSHO', function (err) {
+                if (err) {
+                    console.log('Error al suscribirse al topic:', err);
+                } else {
+                    console.log('Suscrito al topic /TX_ELBOSHO');
+                }
+            });
+        });
+
+        client.on('message', function (topic, message) {
+            if (topic === '/TX_ELBOSHO') {
+                recibirCoords(JSON.parse(message.toString()));
+            }
+        });
+
+        function enviarCoords() {
+            const topic = '/RX_ELBOSHO';
+            let message = coords;
+
+            client.publish(topic, JSON.stringify(message), function (err) {
+                if (err) {
+                    console.log('Error publicando el mensaje:', err);
+                } else {
+                    console.log('Mensaje publicado:', message);
+                }
+            });
+        }
+
+        function recibirCoords(coords) {
+            console.log('Coordenadas recibidas:', coords);
+            document.getElementById('coords').innerText = `Latitud: ${coords.lat}, Longitud: ${coords.lgt}`;
+
+            // Mover el mapa a las nuevas coordenadas
+            map.setView([coords.lat, coords.lgt], 19);
+
+            // Añadir un marcador en las nuevas coordenadas
+            L.marker([coords.lat, coords.lgt]).addTo(map)
+                .bindPopup('Posición del Bosho')
+                .openPopup();
+        }
+     </script>
+</body>
+</html>
