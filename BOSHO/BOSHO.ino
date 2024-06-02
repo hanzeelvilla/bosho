@@ -13,6 +13,7 @@ bool izquierdaActivo = false;
 bool derechaActivo = false;
 bool adelanteActivo = false;
 bool atrasActivo = false;
+bool claxonActivo = false;
 
 //Sensor seguidor de línea
 #define sensD 34
@@ -365,11 +366,14 @@ void loop() {
   else if (derechaActivo) {
     derecha(220);
     itermitenteD();
+  }
+  else if(claxonActivo){
+    tusa();
   } 
   else {
     parar();
+    noTone(buzzer);
   }
-
 
   //delay(200);
   /*

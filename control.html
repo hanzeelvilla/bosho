@@ -79,7 +79,7 @@
             <circle cx="50" cy="50" r="50" fill="url(#grad1)" />
             <circle cx="50" cy="50" r="47" fill="url(#grad2)" stroke="black" stroke-width="1.5px" />
             <circle cx="50" cy="50" r="44" fill="url(#grad3)" />
-            <circle cx="50" cy="50" r="20" fill="#cccccc" stroke="black" stroke-width="1px" onclick="alert('CENTER')" />
+            <circle cx="50" cy="50" r="20" fill="#cccccc" stroke="black" stroke-width="1px" onmousedown="sendMessage(8)" onmouseup="stopMoving()" ontouchstart="sendMessage(0)" ontouchend="stopMoving()" />
             <path d="M50,14 54,22 46,22Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(0)" onmouseup="stopMoving()" ontouchstart="sendMessage(0)" ontouchend="stopMoving()" />
             <path d="M50,86 54,78 46,78Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(1)" onmouseup="stopMoving()" ontouchstart="sendMessage(1)" ontouchend="stopMoving()" />
             <path d="M14,50 22,54 22,46Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(2)" onmouseup="stopMoving()" ontouchstart="sendMessage(2)" ontouchend="stopMoving()" />
@@ -113,7 +113,8 @@
                         adelante: true,
                         atras: false,
                         izquierda: false,
-                        derecha: false
+                        derecha: false,
+                        claxon: false
                     };
                     break;
                 case 1:
@@ -121,7 +122,8 @@
                         adelante: false,
                         atras: true,
                         izquierda: false,
-                        derecha: false
+                        derecha: false,
+                        claxon: false
                     };
                     break;
                 case 2:
@@ -129,7 +131,8 @@
                         adelante: false,
                         atras: false,
                         izquierda: true,
-                        derecha: false
+                        derecha: false,
+                        claxon: false
                     };
                     break;
                 case 3:
@@ -137,7 +140,8 @@
                         adelante: false,
                         atras: false,
                         izquierda: false,
-                        derecha: true
+                        derecha: true,
+                        claxon: false
                     };
                     break;
                 case 4:
@@ -145,7 +149,8 @@
                         adelante: true,
                         atras: false,
                         izquierda: true,
-                        derecha: false
+                        derecha: false,
+                        claxon: false
                     };
                     break;
                 case 5:
@@ -153,7 +158,8 @@
                         adelante: true,
                         atras: false,
                         izquierda: false,
-                        derecha: true
+                        derecha: true,
+                        claxon: false
                     };
                     break;
                 case 6:
@@ -161,7 +167,8 @@
                         adelante: false,
                         atras: true,
                         izquierda: true,
-                        derecha: false
+                        derecha: false,
+                        claxon: false
                     };
                     break;
                 case 7:
@@ -169,8 +176,21 @@
                         adelante: false,
                         atras: true,
                         izquierda: false,
-                        derecha: true
+                        derecha: true,
+                        claxon: false
                     };
+                    break;
+                case 8:
+                    message = {
+                        adelante: false,
+                        atras: false,
+                        izquierda: false,
+                        derecha: false,
+                        claxon: true
+                    };
+                    break;
+                default:
+                    stopMoving()
                     break;
             }
 
@@ -191,6 +211,7 @@
                 atras: false,
                 izquierda: false,
                 derecha: false,
+                claxon: false
             };
 
             const topic = '/RX_ELBOSHO';
