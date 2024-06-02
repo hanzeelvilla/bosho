@@ -14,6 +14,8 @@ NMEAGPS gps;
 
 float longitude;
 float latitude;
+extern float latDestino;
+extern float lonDestino;
 
 //MOTORES
 #define AIN1 15
@@ -26,6 +28,8 @@ bool derechaActivo = false;
 bool adelanteActivo = false;
 bool atrasActivo = false;
 bool claxonActivo = false;
+bool autodestruccionActivo = false;
+bool pilotoAutomatico = false;
 
 //Sensor seguidor de línea
 #define sensD 34
@@ -364,6 +368,7 @@ void setup() {
   pinMode(ledD, OUTPUT);
 
   gpsSerial.begin(9600);
+  parar();
 }
  
 void loop() {
@@ -405,6 +410,14 @@ void loop() {
   else if(claxonActivo){
     tusa();
   } 
+  else if(autodestruccionActivo){
+    autodestruccion();
+  }
+  else if(pilotoAutomatico){
+    //long X
+    //lat Y
+    tusa();
+  }
   else {
     parar();
     noTone(buzzer);

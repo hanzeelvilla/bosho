@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
@@ -27,16 +28,87 @@
 <body>
     <h1>Doxeador 3000</h1>
      <div id="map"></div>
-     <button type="button" id="enviar">Enviar coordenadas</button>
+     <label for="txtLat">Latitud</label>
+     <input type="number" name="txtLat" id="txtLat">
+     <br>
+     <label for="txtLon">Longitud</label>
+     <input type="number" name="txtLon" id="txtLon">
+     <br><br>
+     <button type="button" id="enviar" class="btn btn-dark">Enviar coordenadas</button>
+     <br><br>
+     <button type="button" id="btnAutodestruccion" class="btn btn-dark" onmousedown="sendMessage(0)" onmouseup="stopMoving()" ontouchstart="sendMessage(0)" ontouchend="stopMoving()">Autodestrucción</button>
+     <button type="button" id="btnAlto" class="btn btn-dark" onclick="sendMessage(1)">Alto de emergencia</button>
      <h3 id="coords-bosho">La posición actual del bosho es:</h3>
      <p id="coords"></p>
+     <h3 id="coords-destino">La posición destino del bosho es:</h3>
+     <p id="coordsD"></p>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.2.8/mqtt.min.js"></script>
      <script>
+        //MENSAJES
+        function stopMoving() {
+            const message = {
+                adelante: false,
+                atras: false,
+                izquierda: false,
+                derecha: false,
+                claxon: false,
+                autodestruccion: false
+            };
+
+            const topic = '/RX_ELBOSHO';
+
+            client.publish(topic, JSON.stringify(message), function (err) {
+                if (err) {
+                    console.log('Error publicando el mensaje:', err);
+                } else {
+                    console.log('Mensaje publicado:', message);
+                }
+            });
+        }
+
+        function sendMessage(comando){
+            let message 
+
+            switch(comando){
+                case 0:
+                    message = {
+                        adelante: false,
+                        atras: false,
+                        izquierda: false,
+                        derecha: false,
+                        claxon: false,
+                        autodestruccion: true
+                    }
+                    break
+                case 1:
+                    message = {
+                        adelante: false,
+                        atras: false,
+                        izquierda: false,
+                        derecha: false,
+                        claxon: false,
+                        autodestruccion: false
+                }
+            }
+
+            const topic = '/RX_ELBOSHO';
+
+            client.publish(topic, JSON.stringify(message), function (err) {
+                if (err) {
+                    console.log('Error publicando el mensaje:', err);
+                } else {
+                    console.log('Mensaje publicado:', message);
+                }
+            });
+        }
+
         // COORDENADAS DE TELEMATICA
         var map = L.map('map').setView([19.249207606172725, -103.6973724389974], 19);
         var coords = {
-            lat: "",
-            lon: ""
+            lat: 0,
+            lon: 0,
+            latDestino: 0,
+            lonDestino: 0
         }
 
         // Añadir la capa de mosaico
@@ -54,10 +126,21 @@
             coords.lon = lng;
         });
 
+        //ENIVAR COORDS DESTINO
         let btn = document.getElementById("enviar");
 
         btn.addEventListener("click", () => {
-            enviarCoords();
+            lat = document.getElementById("txtLat").value
+            lon = document.getElementById("txtLon").value
+            if(lat != "" && lon != ""){
+                coords.latDestino = parseFloat(lat);
+                coords.lonDestino = parseFloat(lon);
+                enviarCoords();
+                document.getElementById('coordsD').innerText = `Latitud: ${coords.lat}, Longitud: ${coords.lon}`;
+            }
+            else{
+                console.log("Coordenadas vacías")
+            }
         });
 
         // MQTT

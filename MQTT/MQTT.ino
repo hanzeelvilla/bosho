@@ -27,6 +27,11 @@ extern bool derechaActivo;
 extern bool adelanteActivo;
 extern bool atrasActivo;
 extern bool claxonActivo; 
+extern bool autodestruccionActivo;
+extern bool pilotoAutomatico;
+
+float latDestino = 0.0;
+float lonDestino = 0.0;
 
 /* Clase para la gestión de la red WiFi y el protocolo MQTT */
 class MQTT {
@@ -172,6 +177,12 @@ void MQTT::callback(char* topic, byte* message, unsigned int length) {
   bool adelante = doc["adelante"];
   bool atras = doc["atras"];
   bool claxon = doc["claxon"];
+  bool autodestruccion = doc["autodestruccion"];
+
+  float lat = doc["lat"];
+  float lon = doc["lon"];
+  float latDestino = doc["latDestino"];
+  float lonDestino = doc["lonDestino"];
   
   //CONDICIONES
   if (izquierda) {
@@ -214,4 +225,19 @@ void MQTT::callback(char* topic, byte* message, unsigned int length) {
     claxonActivo = false;
   }
 
+  if(autodestruccion){
+    autodestruccionActivo = true;
+    Serial.println("Autodestruccion");
+  }
+  else{
+    autodestruccionActivo = false;
+  }
+
+  if(lat != 0 && lon != 0 && latDestino != 0 && lonDestino != 0){
+    pilotoAutomatico = true;
+    Serial.println("Piloto automatico");
+  }
+  else{
+    pilotoAutomatico = false;
+  }
 }
