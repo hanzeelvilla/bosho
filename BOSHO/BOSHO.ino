@@ -1,7 +1,19 @@
+#include <NMEAGPS.h>
+#include <SoftwareSerial.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <WiFiClient.h>
 #include "D:\Hanzeel\FaCUMtad\Semestre 4\proyecto_esli\MQTT\MQTT.ino" //RUTA DEL ARCHIVO MQTT
+
+//GPS
+#define RXPin 17
+#define TXPin 16
+
+SoftwareSerial gpsSerial(RXPin, TXPin);
+NMEAGPS gps;
+
+float longitude;
+float latitude;
 
 //MOTORES
 #define AIN1 15
@@ -308,6 +320,27 @@ void diagonalDerechaA(int velocidad) {
     digitalWrite(ledI, LOW);
   }
 
+//GPS
+void usarGPS() {
+     // Si hay datos disponibles en el puerto serial del GPS
+    if (gps.available(gpsSerial)) {
+      // Lee y procesa los datos del GPS
+      gps_fix fix = gps.read();
+
+      // Si hay una nueva posición disponible, almacena las coordenadas
+      if (fix.valid.location) {
+        latitude = fix.latitude();
+        longitude = fix.longitude();
+
+        // Imprimir las coordenadas en el monitor serie
+        Serial.print("Latitud: ");
+        Serial.println(latitude, 6);
+        Serial.print("Longitud: ");
+        Serial.println(longitude, 6);
+      }
+    }
+  }
+
 void setup() {
   Serial.begin(115200);
   
@@ -329,6 +362,8 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   pinMode(ledI, OUTPUT);
   pinMode(ledD, OUTPUT);
+
+  gpsSerial.begin(9600);
 }
  
 void loop() {
@@ -374,6 +409,8 @@ void loop() {
     parar();
     noTone(buzzer);
   }
+
+  usarGPS();
 
   //delay(200);
   /*

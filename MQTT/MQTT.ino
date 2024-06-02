@@ -9,18 +9,18 @@
 #include "PubSubClient.h"
   PubSubClient client ( ESP32_WIFI );
 
-/* Directivas de configuración de red y parámetros MQTT */
-#define HOTSPOT_WIFI  "INFINITUM02A0"            /* Nombre del punto de acceso a conectarse */
-#define HOTSPOT_PWD   "RACbe21akl"                       /* Contraseña de la red */
+#include "D:\Hanzeel\FaCUMtad\Semestre 4\proyecto_esli\ENV\ENV.ino" //RUTA VARIABLES DEL ENTORNO
+
+/* Directivas de configuración de red y parámetros MQTT */                      /* Contraseña de la red */
 #define MQTT_SERVER   "test.mosquitto.org"     /* Dirección del Broker MQTT */
 #define MQTT_PORT     1883                     /* Puerto del Broker MQTT */
 #define TXTOPIC       "/TX_ELBOSHO"         /* Nombre del topic de publicación */
 #define RXTOPIC       "/RX_ELBOSHO"         /* Nombre del topic de suscripción */
 
-float latitud = 19.256878;
-float longitud = -103.752708;
 
 //VARIABLES EXTERNAS
+extern float latitude;
+extern float longitude;
 extern bool ultraSonicoActivo; 
 extern bool izquierdaActivo;
 extern bool derechaActivo;
@@ -78,8 +78,8 @@ void MQTT::publish_MQTT ( void ) {
 
   // Crear un documento JSON
   DynamicJsonDocument doc(1024);
-  doc["lat"] = latitud;
-  doc["lgt"] = longitud;
+  doc["lat"] = latitude;
+  doc["lgt"] = longitude;
 
   // Convertir el documento JSON a una cadena
   char buffer[512];
