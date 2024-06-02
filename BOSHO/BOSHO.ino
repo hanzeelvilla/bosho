@@ -25,21 +25,16 @@ bool atrasActivo = false;
 long duration;
 bool ultraSonicoActivo = false; // Variable para el estado del sensor
 
-//BOCHOMOVIL
+//AUDIOSONORO
 #define buzzer 23
 #define ledD 19
 #define ledI 21
-
-//SERVIDOR
-
-const char* ssid = "INFINITUM02A0";
-const char* password = "RACbe21akl";
-WebServer server(80);  
 
 //MQTT
  MQTT mqtt;
  long lastMsg = 0;
 
+//ULTRASONICO
 void evitar_obstaculos() {
   digitalWrite(TRIGGER, LOW);
   delayMicroseconds(2);
@@ -62,6 +57,7 @@ void evitar_obstaculos() {
   }
 }
 
+//SEGUIDOR DE LÍNEA
 void seguidor_linea(){
     int valorD = analogRead(sensD);
     int valorI = analogRead(sensI);
@@ -83,6 +79,15 @@ void seguidor_linea(){
     }
   }
 
+   void print_valores_seguidor(int valD, int valI){
+    Serial.print("Derecha: ");
+    Serial.println(valD);
+    Serial.print("Izquierda: ");
+    Serial.println(valI);
+    delay(1000);
+  }
+
+//CANCIONES
 void tusa(){
   tone(buzzer, 880);
   digitalWrite(ledI, HIGH);
@@ -193,6 +198,7 @@ void autodestruccion(){
   delay(2000);
 }
 
+//DIRECCIONES MOTORES
  void parar(){
     analogWrite(AIN1, 0); 
     analogWrite(AIN2, 0);
@@ -226,6 +232,13 @@ void autodestruccion(){
     analogWrite(AIN2, LOW);
     analogWrite(BIN1, velocidad); 
     analogWrite(BIN2, LOW);
+  }
+
+  void izquierda_atras(int velocidad){
+    analogWrite(AIN1, LOW); 
+    analogWrite(AIN2, LOW);
+    analogWrite(BIN1, LOW); 
+    analogWrite(BIN2, velocidad);
   }
 
   void diagonalIzquierda(int velocidad) {
@@ -277,12 +290,9 @@ void diagonalDerechaA(int velocidad) {
     delay(1000);
   }
 
-  void print_valores_seguidor(int valD, int valI){
-    Serial.print("Derecha: ");
-    Serial.println(valD);
-    Serial.print("Izquierda: ");
-    Serial.println(valI);
-    delay(1000);
+  void bailar(int velocidad){
+    derecha(velocidad);
+    izquierda_atras(velocidad);
   }
 
   void itermitenteD() {
@@ -300,9 +310,9 @@ void diagonalDerechaA(int velocidad) {
 void setup() {
   Serial.begin(115200);
   
-  mqtt.setup_WiFi ( );
-  mqtt.set_MQTT_server ( );
-  mqtt.set_MQTT_callback (  );\
+  mqtt.setup_WiFi();
+  mqtt.set_MQTT_server();
+  mqtt.set_MQTT_callback( );
 
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
@@ -318,41 +328,48 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   pinMode(ledI, OUTPUT);
   pinMode(ledD, OUTPUT);
-
-  //tusa();
 }
  
 void loop() {
-  delay ( 10 );
-  mqtt.reconnect_MQTT ( );
+  delay (10);
+  mqtt.reconnect_MQTT();
   long now = millis();
     if (now - lastMsg > 5000) {
       lastMsg = now;
       
-      mqtt.publish_MQTT ( );
+      mqtt.publish_MQTT();
     }
 
   if (adelanteActivo && izquierdaActivo) {
     diagonalDerecha(240);
-  } else if (adelanteActivo && derechaActivo) {
+  } 
+  else if (adelanteActivo && derechaActivo) {
     diagonalIzquierda(240);
-  } else if (atrasActivo && izquierdaActivo) {
+  } 
+  else if (atrasActivo && izquierdaActivo) {
     diagonalIzquierdaA(240);
-  } else if (atrasActivo && derechaActivo) {
+  } 
+  else if (atrasActivo && derechaActivo) {
     diagonalDerechaA(240);
-  } else if (adelanteActivo) {
+  } 
+  else if (adelanteActivo) {
     adelante(240);
-  } else if (atrasActivo) {
+  } 
+  else if (atrasActivo) {
     atras(220);
-  } else if (izquierdaActivo) {
+  } 
+  else if (izquierdaActivo) {
     izquierda(240);
     itermitenteI();
-  } else if (derechaActivo) {
+  } 
+  else if (derechaActivo) {
     derecha(220);
     itermitenteD();
-  } else {
+  } 
+  else {
     parar();
   }
+
 
   //delay(200);
   /*

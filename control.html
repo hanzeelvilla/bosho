@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MQTT Web Client</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #joystick {
+            width: 80%;
+            max-width: 300px;
+            margin: 20px 0;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+        }
+
+        button {
+            display: block;
+            width: 80%;
+            max-width: 300px;
+            margin: 10px auto;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:active {
+            background-color: #004080;
+        }
+    </style>
+</head>
+<body>
+    <h1>MQTT Web Client</h1>
+    <div id="joystick">
+        <svg viewBox="0 0 100 100">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgb(16,16,16);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgb(240,240,240);stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgb(240,240,240);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgb(16,16,16);stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="grad3" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgb(168,168,168);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgb(239,239,239);stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="50" fill="url(#grad1)" />
+            <circle cx="50" cy="50" r="47" fill="url(#grad2)" stroke="black" stroke-width="1.5px" />
+            <circle cx="50" cy="50" r="44" fill="url(#grad3)" />
+            <circle cx="50" cy="50" r="20" fill="#cccccc" stroke="black" stroke-width="1px" onclick="alert('CENTER')" />
+            <path d="M50,14 54,22 46,22Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(0)" onmouseup="stopMoving()" ontouchstart="sendMessage(0)" ontouchend="stopMoving()" />
+            <path d="M50,86 54,78 46,78Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(1)" onmouseup="stopMoving()" ontouchstart="sendMessage(1)" ontouchend="stopMoving()" />
+            <path d="M14,50 22,54 22,46Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(2)" onmouseup="stopMoving()" ontouchstart="sendMessage(2)" ontouchend="stopMoving()" />
+            <path d="M86,50 78,54 78,46Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(3)" onmouseup="stopMoving()" ontouchstart="sendMessage(3)" ontouchend="stopMoving()" />
+            <!-- Diagonal buttons -->
+            <path d="M30,30 38,38 22,38Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(4)" onmouseup="stopMoving()" ontouchstart="sendMessage(4)" ontouchend="stopMoving()" />
+            <path d="M70,30 62,38 78,38Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(5)" onmouseup="stopMoving()" ontouchstart="sendMessage(5)" ontouchend="stopMoving()" />
+            <path d="M30,70 38,62 22,62Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(6)" onmouseup="stopMoving()" ontouchstart="sendMessage(6)" ontouchend="stopMoving()" />
+            <path d="M70,70 62,62 78,62Z" fill="rgba(0,0,0,0.8)" onmousedown="sendMessage(7)" onmouseup="stopMoving()" ontouchstart="sendMessage(7)" ontouchend="stopMoving()" />
+        </svg>
+    </div>
+
+    <!-- Include the MQTT library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.2.8/mqtt.min.js"></script>
+    <script>
+        const broker = 'wss://test.mosquitto.org:8081'; // Broker MQTT usando WebSockets
+
+        // Crear un cliente MQTT
+        const client = mqtt.connect(broker);
+
+        client.on('connect', function () {
+            console.log('Conectado al broker MQTT');
+        });
+
+        function sendMessage(direccion) {
+            let message;
+
+            switch (direccion) {
+                case 0:
+                    message = {
+                        adelante: true,
+                        atras: false,
+                        izquierda: false,
+                        derecha: false
+                    };
+                    break;
+                case 1:
+                    message = {
+                        adelante: false,
+                        atras: true,
+                        izquierda: false,
+                        derecha: false
+                    };
+                    break;
+                case 2:
+                    message = {
+                        adelante: false,
+                        atras: false,
+                        izquierda: true,
+                        derecha: false
+                    };
+                    break;
+                case 3:
+                    message = {
+                        adelante: false,
+                        atras: false,
+                        izquierda: false,
+                        derecha: true
+                    };
+                    break;
+                case 4:
+                    message = {
+                        adelante: true,
+                        atras: false,
+                        izquierda: true,
+                        derecha: false
+                    };
+                    break;
+                case 5:
+                    message = {
+                        adelante: true,
+                        atras: false,
+                        izquierda: false,
+                        derecha: true
+                    };
+                    break;
+                case 6:
+                    message = {
+                        adelante: false,
+                        atras: true,
+                        izquierda: true,
+                        derecha: false
+                    };
+                    break;
+                case 7:
+                    message = {
+                        adelante: false,
+                        atras: true,
+                        izquierda: false,
+                        derecha: true
+                    };
+                    break;
+            }
+
+            const topic = '/RX_ELBOSHO';
+
+            client.publish(topic, JSON.stringify(message), function (err) {
+                if (err) {
+                    console.log('Error publicando el mensaje:', err);
+                } else {
+                    console.log('Mensaje publicado:', message);
+                }
+            });
+        }
+
+        function stopMoving() {
+            const message = {
+                adelante: false,
+                atras: false,
+                izquierda: false,
+                derecha: false,
+            };
+
+            const topic = '/RX_ELBOSHO';
+
+            client.publish(topic, JSON.stringify(message), function (err) {
+                if (err) {
+                    console.log('Error publicando el mensaje:', err);
+                } else {
+                    console.log('Mensaje publicado:', message);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
