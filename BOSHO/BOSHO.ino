@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <WiFiClient.h>
-#include "D:\Hanzeel\FaCUMtad\Semestre 4\proyecto_esli\MQTT\MQTT.ino" //RUTA DEL ARCHIVO MQTT
+#include "C:\Users\walle\OneDrive\Escritorio\Hanzeel\Semestre_4\bosho\MQTT\MQTT.ino" //RUTA DEL ARCHIVO MQTT
 
 //GPS
 #define RXPin 17
@@ -14,8 +14,8 @@ NMEAGPS gps;
 
 float longitude;
 float latitude;
-extern float latDestino;
-extern float lonDestino;
+float latDestino = 0;
+float lonDestino = 0;
 
 //MOTORES
 #define AIN1 15
@@ -336,6 +336,7 @@ void usarGPS() {
         latitude = fix.latitude();
         longitude = fix.longitude();
 
+
         // Imprimir las coordenadas en el monitor serie
         Serial.print("Latitud: ");
         Serial.println(latitude, 6);
@@ -416,7 +417,14 @@ void loop() {
   else if(pilotoAutomatico){
     //long X
     //lat Y
-    tusa();
+    if(latitude < latDestino){
+      adelante(210);
+      Serial.println(latitude);
+    }
+    else{
+      parar();
+      autodestruccion();
+    }
   }
   else {
     parar();

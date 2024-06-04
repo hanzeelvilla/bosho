@@ -9,14 +9,13 @@
 #include "PubSubClient.h"
   PubSubClient client ( ESP32_WIFI );
 
-#include "D:\Hanzeel\FaCUMtad\Semestre 4\proyecto_esli\ENV\ENV.ino" //RUTA VARIABLES DEL ENTORNO
+#include "C:\Users\walle\OneDrive\Escritorio\Hanzeel\Semestre_4\bosho\ENV\ENV.ino" //RUTA VARIABLES DEL ENTORNO
 
 /* Directivas de configuración de red y parámetros MQTT */                      /* Contraseña de la red */
 #define MQTT_SERVER   "test.mosquitto.org"     /* Dirección del Broker MQTT */
 #define MQTT_PORT     1883                     /* Puerto del Broker MQTT */
 #define TXTOPIC       "/TX_ELBOSHO"         /* Nombre del topic de publicación */
 #define RXTOPIC       "/RX_ELBOSHO"         /* Nombre del topic de suscripción */
-
 
 //VARIABLES EXTERNAS
 extern float latitude;
@@ -30,8 +29,8 @@ extern bool claxonActivo;
 extern bool autodestruccionActivo;
 extern bool pilotoAutomatico;
 
-float latDestino = 0.0;
-float lonDestino = 0.0;
+extern float latDestino;
+extern float lonDestino;
 
 /* Clase para la gestión de la red WiFi y el protocolo MQTT */
 class MQTT {
@@ -130,7 +129,7 @@ void MQTT::reconnect_MQTT(void) {
 void MQTT::setup_WiFi(void) {
   delay (10);
   Serial.println ( F("Configurando WiFi: "));
-  WiFi.begin (HOTSPOT_WIFI, HOTSPOT_PWD );               /* Iniciar intentos de conexión hacia la red WiFi */
+  WiFi.begin (HOTSPOT_WIFI, HOTSPOT_PWD);               /* Iniciar intentos de conexión hacia la red WiFi */
   
   while (WiFi.status() != WL_CONNECTED) {            /* Mientras que no se haya conectado a la red especificada */
     
@@ -181,8 +180,8 @@ void MQTT::callback(char* topic, byte* message, unsigned int length) {
 
   float lat = doc["lat"];
   float lon = doc["lon"];
-  float latDestino = doc["latDestino"];
-  float lonDestino = doc["lonDestino"];
+  latDestino = doc["latDestino"];
+  lonDestino = doc["lonDestino"];
   
   //CONDICIONES
   if (izquierda) {

@@ -133,6 +133,8 @@
             lat = document.getElementById("txtLat").value
             lon = document.getElementById("txtLon").value
             if(lat != "" && lon != ""){
+                coords.lat = map.getCenter().lat
+                coords.lon = map.getCenter().lng
                 coords.latDestino = parseFloat(lat);
                 coords.lonDestino = parseFloat(lon);
                 enviarCoords();
